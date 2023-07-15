@@ -36,18 +36,21 @@ fn main() -> io::Result<()> {
     };
 
     // Remove all existing profraw files
-    for entry in fs::read_dir(&root)? {
-        let entry = entry?;
-        let path = entry.path();
-        if let Some(extension) = path.extension() {
-            if extension == "profraw" {
-                fs::remove_file(&path)?;
+    if root.exists() {
+        for entry in fs::read_dir(&root)? {
+            let entry = entry?;
+            let path = entry.path();
+            if let Some(extension) = path.extension() {
+                if extension == "profraw" {
+                    fs::remove_file(&path)?;
+                }
             }
         }
     }
 
     let child = Command::new("cargo")
         .arg("test")
+        .arg(&env::args().collect::<String>())
         .env("CARGO_INCREMENTAL", "0")
         .env("RUSTFLAGS", "-Cinstrument-coverage")
         .env(
